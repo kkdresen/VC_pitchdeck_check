@@ -22,7 +22,7 @@ st.set_page_config(APP_TITLE, page_icon="📊", layout="wide")
 st.title(APP_TITLE)
 
 # Display the image in the top-left corner of the sidebar with a custom width
-st.sidebar.image("~/orq.ai_logo.png", width=150)
+st.sidebar.image("orq.ai_logo.png", width=150)
 
 # Sidebar title and captions
 st.sidebar.title("🎯 VC Pitchdeck Checker")

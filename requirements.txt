@@ -1,0 +1,8 @@
+streamlit==1.40.0
+PyPDF2
+orq_ai_sdk
+plotly
+requests
+pandas
+numpy
+# Add any other libraries you are using in your code

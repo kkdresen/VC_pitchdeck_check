@@ -3,17 +3,14 @@ import os
 import streamlit as st
 import PyPDF2
 import plotly.graph_objects as go
-from orq_ai_sdk import OrqAI
+from orq_ai_sdk import Orq
 
 from typing import Optional
 
 # Initialize the client
-client = OrqAI(
+client = Orq(
     api_key=os.environ.get("ORQ_API_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ3b3Jrc3BhY2VJZCI6IjQ2NjJlMzQyLTEyODktNGZmNS04YjUwLWI1YWQ5MzExMzNkOCIsImlhdCI6MTcyOTY5MzY5NDgwMX0.UK8t7G0ntm__supebieS8lkktgn82txf9nBAtZnj-JQ"),
-    environment="production"
 )
-
-client.set_user(id=2024)
 
 APP_TITLE = 'VC Pitchdeck Checker'
 

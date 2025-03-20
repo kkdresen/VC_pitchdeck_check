@@ -1,16 +1,9 @@
 import json
-import os
 import streamlit as st
 import PyPDF2
 import plotly.graph_objects as go
 from orq_ai_sdk import Orq
-
 from typing import Optional
-
-# Initialize the client
-client = Orq(
-    api_key=os.environ.get("ORQ_API_KEY", "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ3b3Jrc3BhY2VJZCI6IjQ2NjJlMzQyLTEyODktNGZmNS04YjUwLWI1YWQ5MzExMzNkOCIsImlhdCI6MTcyOTY5MzY5NDgwMX0.UK8t7G0ntm__supebieS8lkktgn82txf9nBAtZnj-JQ"),
-)
 
 APP_TITLE = 'VC Pitchdeck Checker'
 
@@ -18,12 +11,19 @@ APP_TITLE = 'VC Pitchdeck Checker'
 st.set_page_config(APP_TITLE, page_icon="📊", layout="wide")
 st.title(APP_TITLE)
 
-# Display the image in the top-left corner of the sidebar with a custom width
+# Sidebar content
 st.sidebar.image("orq.ai_logo.png", width=150)
-
-# Sidebar title and captions
 st.sidebar.title("🎯 VC Pitchdeck Checker")
 st.sidebar.caption("Made by [Orq.ai](https://orq.ai/)")
+
+# Access token input
+api_key = st.sidebar.text_input("Enter your Orq.ai API Key:", type="password")
+if not api_key:
+    st.sidebar.warning("Please enter your API key to continue.")
+    st.stop()
+
+# Initialize the client with user-provided API key
+client = Orq(api_key=api_key)
 
 # Sidebar content for "How to Use This VC Pitchdeck Checker"
 with st.sidebar.expander("**📖 How to Use This VC Pitchdeck Checker**"):
@@ -93,8 +93,8 @@ def main():
         
 		# Top 5 LLM models dropdown
         selected_model = st.selectbox("Top LLM Models", options=[
-            "azure/llama-3.1-70B-Instruct", "azure/mistral-large", "chatgpt4o",
-            "claude3.5sonnet", "gemini1.5pro"
+            "chatgpt4o",
+            "claude3.7sonnet", "gemini2.0flash"
         ])
 
         # Add the dropdowns for VC fund configuration
@@ -118,7 +118,7 @@ def main():
 
                 # Integrate the generation API call for pitch deck analysis
                 generation_analysis = client.deployments.invoke(
-                    key="Pitchdeck_InfoExtraction_VCs",  # Correct model key for info extraction
+                    key="vc-deck-info-extraction-deployment",  # Correct model key for info extraction
                     context={"environments": []},
                     inputs={"pdf": pdf_text},
                     metadata={"custom-field-name": "custom-metadata-value"}
@@ -129,7 +129,7 @@ def main():
 
                 # Integrate generation API call for pitch deck scoring
                 generation_scoring = client.deployments.invoke(
-                    key="VC_pitchdeck_scoring",  # Correct model key for pitch deck scoring
+                    key="vc-pitchdeck-scoring-deployment",  # Correct model key for pitch deck scoring
                     context={
                         "environments": [],
                         "VC_model": [selected_model]  # Pass selected model in context
@@ -146,7 +146,7 @@ def main():
                 )
 
                 # Determine if model supports tool calls
-                if selected_model in ["chatgpt4o", "claude3.5sonnet", "gemini1.5pro"]:
+                if selected_model in ["chatgpt4o", "claude3.7sonnet", "gemini2.0flash"]:
                     # Parse JSON data from tool calls
                     try:
                         scoring_data = json.loads(generation_scoring.choices[0].message.tool_calls[0].function.arguments)
@@ -194,7 +194,7 @@ def main():
                 if chat_input:
                     with st.spinner('Generating response...'):
                         chat_response = client.deployments.invoke(
-                            key="VC_deck_chat",
+                            key="vc-chat-with-deck-deployment",
                             context={"environments": []},
                             inputs={"pdf": pdf_text, "question": chat_input},
                             metadata={"custom-field-name": "custom-metadata-value"}
